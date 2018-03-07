@@ -1,0 +1,68 @@
+#########################################################
+Description
+#########################################################
+-Barrier synchronization is used widely in parallel computing to synchronize the execution of parallel loops. POSIX has the barrier synchronization functionalities.
+-In this assignment we have implemented barrier synchronization funtionalities as a system call for the linux kernel i.e. barrier is created in the kernel where the threads wait
+ on the barrier when they make the respective system call.
+-System calls are created for the barrier initialization, barrier wait and barrier destroy.
+-When the thread in the user space calls the barrier initialization system call, the barrier gets initialised with the number of threads that are going to wait on that barrier.
+-On calling the barrier wait system call, the threads is put sleep i.e. moved from running queue to waiting queue. When all the threads hit the barrier, scheduler wakeup all the threads
+ and moved back to the running queue. Scheduler takes the call on which thread to execute.
+-When the thread call barrier destroy system call, the barrier that was created gets destroyed and all the threads terminate.
+
+##########################################################
+
+The system calls implemented are:
+
+syscall(359,parg1->n,&parg1->barrier_id,parg1->timeout)  for  sys_barrier_init(unsigned int count, unsigned int *barrier_id)
+syscall(360,parg1->barrier_id)                           for  sys_barrier_wait(unsigned int barrier_id)
+syscall(361,parg->barrier_id)	                         for  sys_barrier_destroy(unsigned int barrier_id)
+
+The kernel version used is 3.19.8
+
+Process to execute the test program:
+
+          . Applying the patch:
+	        "patch -p1 < path/to/patch/team23.patch"
+          . Then perform the following steps:
+	         Include the cross-compilation tools in your PATH:
+		    "export PATH=/opt/iot-devkit/1.7.2/sysroots/x86_64-pokysdk-linux/usr/bin/i586-poky-linux:$PATH"
+	          Cross-compile the kernel
+		     "ARCH=x86 LOCALVERSION= CROSS_COMPILE=i586-poky-linux- make -j4"
+	          Build and extract the kernel modules from the build to a target directory (e.g ../galileo-install)
+		     "ARCH=x86 LOCALVERSION= INSTALL_MOD_PATH=../galileo-install CROSS_COMPILE=i586-poky-linux- make   modules_install"
+	          Extract the kernel image (bzImage) from the build to a target directory (e.g ../galileo-install)
+		     "cp arch/x86/boot/bzImage ../galileo-install/"
+	          Install the new kernel and modules from the target directory (e.g ../galileo-install) to your micro SD card
+		       - Replace the bzImage found in the first partition (ESP) of your micro SD card with the one from your target 				  directory (backup the bzImage on the micro SD card e.g. rename it to bzImage.old)
+		       - Copy the kernel modules from the target directory to the /lib/modules/ directory found in the second partition 			   of your micro SD card.
+	          Reboot into your new kernel
+	
+          . Run the Makefile to obtain the executable :
+   		     "make"
+          . After the command "make", run_call executable is generated, then connect the board and open putty by typing in putty.
+
+                  . Find the ip address of the host using command "ifconfig" and findout the ethernet connection.
+                    change the ip address of the host using the command "ifconfig eno1 192.168.1.6 netmask 255.255.0.0"
+
+                  . Configure the putty by setting the serial baud rate 115200 and serial line to /dev/ttyUSB0
+      
+                  . Find the ip address of the board using command "ifconfig" and findout the ethernet connection.
+                    change the ip address of the host using the command "ifconfig (ethernet connection port) 192.168.1.5 netmask 255.255.0.0"
+
+                  . Run the Makefile present in "cse530-team22-assgn04" folder using the command "$make"
+                
+                  . It creates "run_call" executable.
+                     Then send the following "run_call" executable using respective command
+                      executable  :"$ scp run_call root@192.168.1.5:/home" 
+                      
+ Output displayed is of the form:
+     
+                 . "Enter the sleep time after each synchronization="
+                 . "Sync_Round-2, Barrier_id-1, Child_pid-323, Thread_id-419"
+                 . If there is timeout occuring then following print statment is being displayed
+                       "Timeout occured:Sync_Round-2, Barrier_id-1, Child_pid-323, Thread_id-419"
+                 . "child process has been terminated"
+                   "parent process has been terminated"
+ 
+                 
