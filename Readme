@@ -14,9 +14,9 @@ Description
 
 The system calls implemented are:
 
-syscall(359,parg1->n,&parg1->barrier_id,parg1->timeout)  for  sys_barrier_init(unsigned int count, unsigned int *barrier_id)
+syscall(359,parg1->n,&parg1->barrier_id,parg1->timeout)  for  sys_barrier_init(unsigned int count, unsigned int *barrier_id, signed int timeout)
 syscall(360,parg1->barrier_id)                           for  sys_barrier_wait(unsigned int barrier_id)
-syscall(361,parg->barrier_id)	                         for  sys_barrier_destroy(unsigned int barrier_id)
+syscall(361,parg1->barrier_id)	                         for  sys_barrier_destroy(unsigned int barrier_id)
 
 The kernel version used is 3.19.8
 
